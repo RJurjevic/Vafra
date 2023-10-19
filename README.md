@@ -1,2 +1,2 @@
 # Vafra
-Vafra Stockfish chess engine clone 
+Vafra Stockfish 12 chess engine clone 
