@@ -23,9 +23,9 @@
 
 ### Executable name
 ifeq ($(COMP),mingw)
-EXE = stockfish.exe
+EXE = vafra.exe
 else
-EXE = stockfish
+EXE = vafra
 endif
 
 ### Installation dir definitions
@@ -299,6 +299,7 @@ endif
 CXXFLAGS += -Wall -Wcast-qual -fno-exceptions -std=c++17 $(EXTRACXXFLAGS)
 DEPENDFLAGS += -std=c++17
 LDFLAGS += $(EXTRALDFLAGS)
+LDFLAGS += --static
 
 ifeq ($(COMP),)
 	COMP=gcc
@@ -646,7 +647,7 @@ endif
 
 help:
 	@echo ""
-	@echo "To compile stockfish, type: "
+	@echo "To compile vafra, type: "
 	@echo ""
 	@echo "make target ARCH=arch [COMP=compiler] [COMPCXX=cxx]"
 	@echo ""
@@ -751,7 +752,7 @@ clean: objclean profileclean
 net:
 	$(eval nnuenet := $(shell grep EvalFileDefaultName evaluate.h | grep define | sed 's/.*\(nn-[a-z0-9]\{12\}.nnue\).*/\1/'))
 	@echo "Default net: $(nnuenet)"
-	$(eval nnuedownloadurl := https://tests.stockfishchess.org/api/nn/$(nnuenet))
+	$(eval nnuedownloadurl := https://www.jurjevic.org.uk/chess/vafra/ftp/net/$(nnuenet))
 	$(eval curl_or_wget := $(shell if hash curl 2>/dev/null; then echo "curl -skL"; elif hash wget 2>/dev/null; then echo "wget -qO-"; fi))
 	@if test -f "$(nnuenet)"; then \
             echo "Already available."; \
@@ -779,7 +780,7 @@ objclean:
 profileclean:
 	@rm -rf profdir
 	@rm -f bench.txt *.gcda *.gcno ./syzygy/*.gcda ./nnue/*.gcda ./nnue/features/*.gcda *.s
-	@rm -f stockfish.profdata *.profraw
+	@rm -f vafra.profdata *.profraw
 
 default:
 	help
@@ -855,9 +856,9 @@ clang-profile-make:
 	all
 
 clang-profile-use:
-	$(XCRUN) llvm-profdata merge -output=stockfish.profdata *.profraw
+	$(XCRUN) llvm-profdata merge -output=vafra.profdata *.profraw
 	$(MAKE) ARCH=$(ARCH) COMP=$(COMP) \
-	EXTRACXXFLAGS='-fprofile-instr-use=stockfish.profdata' \
+	EXTRACXXFLAGS='-fprofile-instr-use=vafra.profdata' \
 	EXTRALDFLAGS='-fprofile-use ' \
 	all
 

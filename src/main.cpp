@@ -1,6 +1,6 @@
 /*
   Stockfish, a UCI chess playing engine derived from Glaurung 2.1
-  Copyright (C) 2004-2020 The Stockfish developers (see AUTHORS file)
+  Copyright (C) 2004-2023 The Stockfish developers (see AUTHORS file)
 
   Stockfish is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -30,6 +30,15 @@
 namespace PSQT {
   void init();
 }
+
+/*
+  V 14.12.0
+    - Stockfish 12 modified so to use flipped HalfKP 256x2-32-32-1 NNUE.
+    - Used nn-017411c866a4.nnue NNUE aka nn-v0f000009305.nnue.
+
+  V 14.12.1
+    - Blah blah.
+*/
 
 int main(int argc, char* argv[]) {
 

@@ -16,8 +16,8 @@ updateable neural networks. The classical evaluation runs efficiently on almost 
 CPU architectures, while the NNUE evaluation benefits from the vector
 intrinsics available on most CPUs (sse2, avx2, neon, or similar).
 
-This is a so called Vafra Stockfish clone version of Stockfish, i.e, it is a Stockfish 
-clone based on Stockfish 12, and is intended to be maintained by Robert Jurjevic, who 
+This is a so called Vafra Stockfish clone version of Stockfish, i.e., it is a Stockfish 
+clone based on NNUE Stockfish, and is intended to be maintained by Robert Jurjevic, who 
 was a maintainer of Vafra Cfish chess engine clone, and Vafra Crafty chess engine clone, 
 and who has a long experience in maintaining Vafra chess engine clones.
 

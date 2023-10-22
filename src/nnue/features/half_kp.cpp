@@ -1,6 +1,6 @@
 /*
   Stockfish, a UCI chess playing engine derived from Glaurung 2.1
-  Copyright (C) 2004-2020 The Stockfish developers (see AUTHORS file)
+  Copyright (C) 2004-2023 The Stockfish developers (see AUTHORS file)
 
   Stockfish is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -23,9 +23,9 @@
 
 namespace Eval::NNUE::Features {
 
-  // Orient a square according to perspective (rotates by 180 for black)
+  // Orient a square according to perspective (flips for black)
   inline Square orient(Color perspective, Square s) {
-    return Square(int(s) ^ (bool(perspective) * 63));
+    return Square(int(s) ^ (bool(perspective) * 56));
   }
 
   // Find the index of the feature quantity from the king position and PieceSquare
