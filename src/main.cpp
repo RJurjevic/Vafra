@@ -34,7 +34,11 @@ namespace PSQT {
 /*
   V 14.12.0
     - Stockfish 12 modified so to use flipped HalfKP 256x2-32-32-1 NNUE.
-    - Used nn-017411c866a4.nnue NNUE aka nn-v0f000009305.nnue.
+    - Used nn-562d1cf56c39.nnue NNUE aka nn-v0f000010003.nnue.
+    - Quiet moves sort scoring updated as in Stockfish 16 by adding bonuses for checks and escaping from capture and malus for putting piece en prise.
+    - In search Step 7 Razoring razoring implemented similarly as in Stockfish 16.
+    - In search Step 11 Internal iterative deepening internal iterative deepening implemented similarly as in Stockfish 9 instead of if the position is not in TT decreasing the depth by 2.
+    - In Step 16 Reduced depth search removed decreasing reduction if the ttHit running average is large.
 
   V 14.12.1
     - Blah blah.

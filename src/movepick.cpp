@@ -103,12 +103,49 @@ void MovePicker::score() {
                    + (*captureHistory)[pos.moved_piece(m)][to_sq(m)][type_of(pos.piece_on(to_sq(m)))];
 
       else if (Type == QUIETS)
+      {
+          Color us = pos.side_to_move();
+
+          Bitboard threatenedByPawn = pos.attacks_by<PAWN>(~us);
+          Bitboard threatenedByMinor = pos.attacks_by<KNIGHT>(~us) | pos.attacks_by<BISHOP>(~us)
+                           | threatenedByPawn;
+          Bitboard threatenedByRook = pos.attacks_by<ROOK>(~us) | threatenedByMinor;
+
+          // Pieces threatened by pieces of lesser material value
+          Bitboard threatenedPieces = (pos.pieces(us, QUEEN) & threatenedByRook)
+                           | (pos.pieces(us, ROOK) & threatenedByMinor)
+                           | (pos.pieces(us, KNIGHT, BISHOP) & threatenedByPawn);
+
+          // histories
           m.value =      (*mainHistory)[pos.side_to_move()][from_to(m)]
                    + 2 * (*continuationHistory[0])[pos.moved_piece(m)][to_sq(m)]
                    + 2 * (*continuationHistory[1])[pos.moved_piece(m)][to_sq(m)]
                    + 2 * (*continuationHistory[3])[pos.moved_piece(m)][to_sq(m)]
                    +     (*continuationHistory[5])[pos.moved_piece(m)][to_sq(m)]
                    + (ply < MAX_LPH ? std::min(4, depth / 3) * (*lowPlyHistory)[ply][from_to(m)] : 0);
+
+          // bonus for checks
+          m.value += bool(pos.check_squares(type_of(pos.moved_piece(m))) & to_sq(m)) * 16384;
+
+          // bonus for escaping from capture
+          m.value += threatenedPieces & from_sq(m)
+                     ? (type_of(pos.moved_piece(m)) == QUEEN && !(to_sq(m) & threatenedByRook)   ? 50000
+                        : type_of(pos.moved_piece(m)) == ROOK && !(to_sq(m) & threatenedByMinor) ? 25000
+                        : !(to_sq(m) & threatenedByPawn)                                         ? 15000
+                                     : 0)
+                     : 0;
+
+          // malus for putting piece en prise
+          m.value -= !(threatenedPieces & from_sq(m))
+                     ? (type_of(pos.moved_piece(m)) == QUEEN ? bool(to_sq(m) & threatenedByRook) * 50000
+                                        + bool(to_sq(m) & threatenedByMinor) * 10000
+                                        + bool(to_sq(m) & threatenedByPawn) * 20000
+                        : type_of(pos.moved_piece(m)) == ROOK ? bool(to_sq(m) & threatenedByMinor) * 25000
+                                        + bool(to_sq(m) & threatenedByPawn) * 10000
+                        : type_of(pos.moved_piece(m)) != PAWN ? bool(to_sq(m) & threatenedByPawn) * 15000
+                                     : 0)
+                     : 0;
+      }
 
       else // Type == EVASIONS
       {

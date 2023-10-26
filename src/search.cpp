@@ -804,10 +804,16 @@ namespace {
     }
 
     // Step 7. Razoring (~1 Elo)
-    if (   !rootNode // The required rootNode PV handling is not available in qsearch
+    // If eval is really low check with qsearch if it can exceed alpha, if it can't,
+    // return a fail low.
+    if (   !PvNode
         &&  depth == 1
         &&  eval <= alpha - RazorMargin)
-        return qsearch<NT>(pos, ss, alpha, beta);
+    {
+        value = qsearch<NonPV>(pos, ss, alpha - 1, alpha);
+        if (value < alpha)
+            return value;
+    }
 
     improving =  (ss-2)->staticEval == VALUE_NONE
                ? ss->staticEval > (ss-4)->staticEval || (ss-4)->staticEval == VALUE_NONE
@@ -945,11 +951,17 @@ namespace {
          ss->ttPv = ttPv;
     }
 
-    // Step 11. If the position is not in TT, decrease depth by 2
+    // Step 11. Internal iterative deepening
     if (   PvNode
         && depth >= 6
         && !ttMove)
-        depth -= 2;
+    {
+        Depth d = 3 * depth / 4 - 2;
+        search<PV>(pos, ss, alpha, beta, d, false);
+
+        tte = TT.probe(posKey, ttHit);
+        ttMove = ttHit ? tte->move() : MOVE_NONE;
+    }
 
 moves_loop: // When in check, search starts from here
 
@@ -1173,10 +1185,6 @@ moves_loop: // When in check, search starts from here
               && depth <= 10
               && moveCount <= 2
               && !ss->inCheck)
-              r--;
-
-          // Decrease reduction if the ttHit running average is large
-          if (thisThread->ttHitAverage > 509 * TtHitAverageResolution * TtHitAverageWindow / 1024)
               r--;
 
           // Reduction if other threads are searching this position
