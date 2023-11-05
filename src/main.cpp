@@ -42,7 +42,7 @@ namespace PSQT {
 
   V 14.12.1
     - Stockfish 12 modified so to use flipped HalfKP 256x2-64-32-1 NNUE.
-    - Used nn-67cd5a2b80e4.nnue NNUE aka nn-v0f000010101.nnue.
+    - Used nn-59c8afa947b5.nnue NNUE aka nn-v0f000010102.nnue.
 */
 
 int main(int argc, char* argv[]) {
