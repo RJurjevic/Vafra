@@ -41,8 +41,7 @@ namespace PSQT {
     - In Step 16 Reduced depth search removed decreasing reduction if the ttHit running average is large.
 
   V 14.12.1
-    - Stockfish 12 modified so to use flipped HalfKP 512x2-32-32-1 NNUE.
-    - Used nn-cf7517cbe7ce.nnue NNUE aka nn-v0f000010311.nnue.
+    - Used nn-7e7183aae9f7.nnue NNUE aka nn-v0f000010401.nnue.
 */
 
 int main(int argc, char* argv[]) {
