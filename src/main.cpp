@@ -41,7 +41,13 @@ namespace PSQT {
     - In Step 16 Reduced depth search removed decreasing reduction if the ttHit running average is large.
 
   V 14.12.1
-    - Used nn-7e7183aae9f7.nnue NNUE aka nn-v0f000010401.nnue.
+    - Used nn-14ea2e41f699.nnue NNUE aka nn-v0f000010004.nnue.
+    - In search function added allNode.
+    - In search Step 16 Reduced depth search used allNode in do LMR criteria.
+    - In search Step 16 Reduced depth search removed ttHit running average from do LMR criteria.
+    - In search Step 16 Reduced depth search increased reduction in allNode nodes.
+    - In search Step 9 Null move search with verification search verification search at high depths done with cutNode.
+    - In search Step 16 Reduced depth search reduced search done with !cutNode.
 */
 
 int main(int argc, char* argv[]) {

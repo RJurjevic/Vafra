@@ -59,9 +59,6 @@ namespace {
   // Different node types, used as a template parameter
   enum NodeType { NonPV, PV };
 
-  constexpr uint64_t TtHitAverageWindow     = 4096;
-  constexpr uint64_t TtHitAverageResolution = 1024;
-
   // Razor and futility margins
   constexpr int RazorMargin = 510;
   Value futility_margin(Depth d, bool improving) {
@@ -347,7 +344,6 @@ void Thread::search() {
       multiPV = std::max(multiPV, (size_t)4);
 
   multiPV = std::min(multiPV, rootMoves.size());
-  ttHitAverage = TtHitAverageWindow * TtHitAverageResolution / 2;
 
   int ct = int(Options["Contempt"]) * PawnValueEg / 100; // From centipawns
 
@@ -568,6 +564,7 @@ namespace {
 
     constexpr bool PvNode = NT == PV;
     const bool rootNode = PvNode && ss->ply == 0;
+    const bool allNode = !cutNode;
 
     // Check if we have an upcoming move which draws by repetition, or
     // if the opponent had an alternative move earlier to this position.
@@ -678,10 +675,6 @@ namespace {
         && !priorCapture
         && is_ok((ss-1)->currentMove))
         thisThread->lowPlyHistory[ss->ply - 1][from_to((ss-1)->currentMove)] << stat_bonus(depth - 5);
-
-    // thisThread->ttHitAverage can be used to approximate the running average of ttHit
-    thisThread->ttHitAverage =   (TtHitAverageWindow - 1) * thisThread->ttHitAverage / TtHitAverageWindow
-                                + TtHitAverageResolution * ttHit;
 
     // At non-PV nodes we check for an early TT cutoff
     if (  !PvNode
@@ -867,7 +860,7 @@ namespace {
             thisThread->nmpMinPly = ss->ply + 3 * (depth-R) / 4;
             thisThread->nmpColor = us;
 
-            Value v = search<NonPV>(pos, ss, beta-1, beta, depth-R, false);
+            Value v = search<NonPV>(pos, ss, beta-1, beta, depth-R, cutNode);
 
             thisThread->nmpMinPly = 0;
 
@@ -1175,8 +1168,7 @@ moves_loop: // When in check, search starts from here
           && (  !captureOrPromotion
               || moveCountPruning
               || ss->staticEval + PieceValue[EG][pos.captured_piece()] <= alpha
-              || cutNode
-              || thisThread->ttHitAverage < 427 * TtHitAverageResolution * TtHitAverageWindow / 1024))
+              || allNode))
       {
           Depth r = reduction(improving, depth, moveCount);
 
@@ -1212,8 +1204,8 @@ moves_loop: // When in check, search starts from here
               if (ttCapture)
                   r++;
 
-              // Increase reduction for cut nodes (~10 Elo)
-              if (cutNode)
+              // Increase reduction for allNode nodes
+              if (allNode)
                   r += 2;
 
               // Decrease reduction for moves that escape a capture. Filter out
@@ -1253,7 +1245,7 @@ moves_loop: // When in check, search starts from here
 
           Depth d = std::clamp(newDepth - r, 1, newDepth);
 
-          value = -search<NonPV>(pos, ss+1, -(alpha+1), -alpha, d, true);
+          value = -search<NonPV>(pos, ss+1, -(alpha+1), -alpha, d, !cutNode);
 
           doFullDepthSearch = value > alpha && d != newDepth;
 
