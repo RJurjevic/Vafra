@@ -953,8 +953,13 @@ namespace {
         search<PV>(pos, ss, alpha, beta, d, false);
 
         tte = TT.probe(posKey, ttHit);
-        ttMove = ttHit ? tte->move() : MOVE_NONE;
+        ttMove = // rootNode ? thisThread->rootMoves[thisThread->pvIdx].pv[0] : implicit as we have ttMove for rootNode
+                 ttHit ? tte->move() : MOVE_NONE;
     }
+
+    // For allNodes without a ttMove, we decrease depth by 2 if depth is high enough.
+    if (allNode && depth >= 8 && !ttMove)
+        depth -= 2;
 
 moves_loop: // When in check, search starts from here
 
@@ -1172,7 +1177,7 @@ moves_loop: // When in check, search starts from here
       {
           Depth r = reduction(improving, depth, moveCount);
 
-          // Decrease reduction at non-check cut nodes for second move at low depths
+          // Decrease reduction at non-check cutNodes for second move at low depths
           if (   cutNode
               && depth <= 10
               && moveCount <= 2
@@ -1204,7 +1209,7 @@ moves_loop: // When in check, search starts from here
               if (ttCapture)
                   r++;
 
-              // Increase reduction for allNode nodes
+              // Increase reduction for allNodes
               if (allNode)
                   r += 2;
 
