@@ -48,7 +48,6 @@ namespace PSQT {
     - In search Step 16 Reduced depth search increased reduction in allNodes.
     - In search Step 9 Null move search with verification search verification search at high depths done with cutNode flag.
     - In search Step 16 Reduced depth search reduced search done with !cutNode flag.
-    - In search Step 11 Internal iterative deepening decreased depth for allNodes with no ttMove.
 */
 
 int main(int argc, char* argv[]) {

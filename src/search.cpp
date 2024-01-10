@@ -957,10 +957,6 @@ namespace {
                  ttHit ? tte->move() : MOVE_NONE;
     }
 
-    // For allNodes without a ttMove, we decrease depth by 2 if depth is high enough.
-    if (allNode && depth >= 8 && !ttMove)
-        depth -= 2;
-
 moves_loop: // When in check, search starts from here
 
     const PieceToHistory* contHist[] = { (ss-1)->continuationHistory, (ss-2)->continuationHistory,
