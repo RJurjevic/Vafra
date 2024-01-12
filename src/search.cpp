@@ -564,7 +564,6 @@ namespace {
 
     constexpr bool PvNode = NT == PV;
     const bool rootNode = PvNode && ss->ply == 0;
-    const bool allNode = !cutNode;
 
     // Check if we have an upcoming move which draws by repetition, or
     // if the opponent had an alternative move earlier to this position.
@@ -860,7 +859,8 @@ namespace {
             thisThread->nmpMinPly = ss->ply + 3 * (depth-R) / 4;
             thisThread->nmpColor = us;
 
-            Value v = search<NonPV>(pos, ss, beta-1, beta, depth-R, cutNode);
+            // Assume all-node to trust the search more if it fails-high
+            Value v = search<NonPV>(pos, ss, beta-1, beta, depth-R, false);
 
             thisThread->nmpMinPly = 0;
 
@@ -1169,7 +1169,7 @@ moves_loop: // When in check, search starts from here
           && (  !captureOrPromotion
               || moveCountPruning
               || ss->staticEval + PieceValue[EG][pos.captured_piece()] <= alpha
-              || allNode))
+              || cutNode)) // cutNode true, sought fail-high harder, not found; confirms likely all-node
       {
           Depth r = reduction(improving, depth, moveCount);
 
@@ -1205,8 +1205,8 @@ moves_loop: // When in check, search starts from here
               if (ttCapture)
                   r++;
 
-              // Increase reduction for allNodes
-              if (allNode)
+              // Increase reduction for likely all-node nodes
+              if (cutNode) // cutNode true, sought fail-high harder, not found; confirms likely all-node
                   r += 2;
 
               // Decrease reduction for moves that escape a capture. Filter out
@@ -1246,7 +1246,7 @@ moves_loop: // When in check, search starts from here
 
           Depth d = std::clamp(newDepth - r, 1, newDepth);
 
-          value = -search<NonPV>(pos, ss+1, -(alpha+1), -alpha, d, !cutNode);
+          value = -search<NonPV>(pos, ss+1, -(alpha+1), -alpha, d, true); // at this point likely all-node
 
           doFullDepthSearch = value > alpha && d != newDepth;
 
