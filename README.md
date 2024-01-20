@@ -16,10 +16,7 @@ updateable neural networks. The classical evaluation runs efficiently on almost 
 CPU architectures, while the NNUE evaluation benefits from the vector
 intrinsics available on most CPUs (sse2, avx2, neon, or similar).
 
-This is a so called Vafra Stockfish clone version of Stockfish, i.e., it is a Stockfish 
-clone based on NNUE Stockfish, and is intended to be maintained by Robert Jurjevic, who 
-was a maintainer of Vafra Cfish chess engine clone, and Vafra Crafty chess engine clone, 
-and who has a long experience in maintaining Vafra chess engine clones.
+This repository hosts a variant of Stockfish known as Vafra Stockfish, which is a NNUE Stockfish-based clone. The project is under the maintenance of Robert Jurjevic, a seasoned developer with a history of maintaining Vafra Cfish and Vafra Crafty chess engine clones.
 
 
 ## Files
@@ -42,7 +39,7 @@ The filename for the default (recommended) net can be found as the default
 value of the `EvalFile` UCI option, with the format `nn-[SHA256 first 12 digits].nnue`
 (for instance, `nn-c157e0a5755b.nnue`). This file can be downloaded from
 ```
-https://tests.stockfishchess.org/api/nn/[filename]
+https://www.jurjevic.org.uk/chess/vafra/ftp/net/[filename]
 ```
 replacing `[filename]` as needed.
 
