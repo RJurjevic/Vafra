@@ -41,7 +41,7 @@ namespace PSQT {
     - In Step 16 Reduced depth search removed decreasing reduction if the ttHit running average is large.
 
   V 14.12.1
-    - Used nn-f5df19a58358.nnue NNUE aka nn-v0f000010503.nnue.
+    - Used nn-0e9e1147cfbc.nnue NNUE aka nn-v0f000010604.nnue.
     - In search Step 16 Reduced depth search removed ttHit running average from do LMR criteria.
 */
 
