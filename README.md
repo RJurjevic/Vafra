@@ -1,12 +1,9 @@
 ## Overview
 
-[![Build Status](https://travis-ci.org/official-stockfish/Stockfish.svg?branch=master)](https://travis-ci.org/official-stockfish/Stockfish)
-[![Build Status](https://ci.appveyor.com/api/projects/status/github/official-stockfish/Stockfish?branch=master&svg=true)](https://ci.appveyor.com/project/mcostalba/stockfish/branch/master)
-
 [Stockfish](https://stockfishchess.org) is a free, powerful UCI chess engine
 derived from Glaurung 2.1. Stockfish is not a complete chess program and requires a
-UCI-compatible graphical user interface (GUI) (e.g. XBoard with PolyGlot, Scid,
-Cute Chess, eboard, Arena, Sigma Chess, Shredder, Chess Partner or Fritz) in order
+UCI-compatible graphical user interface (GUI) (e.g. Fritz, Arena, Scid, Cute Chess, 
+eboard, Sigma Chess, Shredder, Chess Partner or XBoard with PolyGlot) in order
 to be used comfortably. Read the documentation for your GUI of choice for information
 about how to use Stockfish with it.
 
@@ -16,7 +13,15 @@ updateable neural networks. The classical evaluation runs efficiently on almost 
 CPU architectures, while the NNUE evaluation benefits from the vector
 intrinsics available on most CPUs (sse2, avx2, neon, or similar).
 
-This repository hosts a variant of Stockfish known as Vafra Stockfish, which is a NNUE Stockfish-based clone. The project is under the maintenance of Robert Jurjevic, a seasoned developer with a history of maintaining Vafra Cfish and Vafra Crafty chess engine clones.
+This repository hosts Vafra Stockfish, a specialized variant of Stockfish featuring 
+NNUE (Neural Network Easy Update) technology. While the current iteration of Stockfish 
+boasts a more sophisticated NNUE architecture with superior training, Vafra Stockfish 
+stands out for its unique training approach, utilizing exclusively Leela data. 
+Spearheaded by Robert Jurjevic, an experienced developer renowned for his adept 
+maintenance of chess engine clones, this project continues the legacy of Stockfish 
+while incorporating innovative approaches to training and refinement. Join us in 
+exploring the unique capabilities and potential of Vafra Stockfish in the realm of
+computer chess.
 
 
 ## Files
@@ -37,7 +42,7 @@ Note: to use the NNUE evaluation, the additional data file with neural network p
 needs to be available. Normally, this file is already embedded in the binary or it can be downloaded.
 The filename for the default (recommended) net can be found as the default
 value of the `EvalFile` UCI option, with the format `nn-[SHA256 first 12 digits].nnue`
-(for instance, `nn-c157e0a5755b.nnue`). This file can be downloaded from
+(for instance, `nn-562d1cf56c39.nnue`). This file can be downloaded from
 ```
 https://www.jurjevic.org.uk/chess/vafra/ftp/net/[filename]
 ```
