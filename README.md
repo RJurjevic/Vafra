@@ -1,9 +1,6 @@
-<p align="center">
-  ![alt text](https://github.com/RJurjevic/Vafra/blob/main/vafra-logo.jpg?raw=true)
-</p>
+![alt text](https://github.com/RJurjevic/Vafra/blob/main/vafra-logo.jpg?raw=true)
 
 <h1 align="center">Vafra Stockfish NNUE</h1>
-
 
 ## Overview
 
