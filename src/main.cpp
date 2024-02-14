@@ -43,6 +43,7 @@ namespace PSQT {
   V 14.12.1
     - Used nn-5e6b3675c603.nnue NNUE aka nn-v0f000010803.nnue.
     - In search Step 16 Reduced depth search removed ttHit running average from do LMR criteria.
+    - Used pure NNUE evaluation.
 */
 
 int main(int argc, char* argv[]) {
