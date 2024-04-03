@@ -45,7 +45,6 @@ namespace PSQT {
     - In search Step 16 Reduced depth search removed ttHit running average from do LMR criteria.
 
   V 14.12.2
-    - Used static evaluation difference to improve quiet move ordering as in Stockfish 16.1.
     - In search Step 7 Razoring implemented adjusting razor margin according to cutoffCnt as in Stockfish 16.1.
     - In search Step 16 Reduced depth search increased reduction if next ply has a lot of fail high as in Stockfish 16.1.
     - In search Step 19 Check for a new best move reduced other moves if we have found at least one score improvement as in Stockfish 16.1.
