@@ -1,6 +1,6 @@
 /*
   Stockfish, a UCI chess playing engine derived from Glaurung 2.1
-  Copyright (C) 2004-2020 The Stockfish developers (see AUTHORS file)
+  Copyright (C) 2004-2024 The Stockfish developers (see AUTHORS file)
 
   Stockfish is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -60,7 +60,7 @@ namespace {
   enum NodeType { NonPV, PV };
 
   // Razor and futility margins
-  constexpr int RazorMargin = 510;
+  constexpr int RazorMargin = 488;
   Value futility_margin(Depth d, bool improving) {
     return Value(223 * (d - improving));
   }
@@ -643,6 +643,7 @@ namespace {
     (ss+1)->ttPv = false;
     (ss+1)->excludedMove = bestMove = MOVE_NONE;
     (ss+2)->killers[0] = (ss+2)->killers[1] = MOVE_NONE;
+    (ss+2)->cutoffCnt = 0;
     Square prevSq = to_sq((ss-1)->currentMove);
 
     // Initialize statScore to zero for the grandchildren of the current position.
@@ -795,12 +796,24 @@ namespace {
         tte->save(posKey, VALUE_NONE, ss->ttPv, BOUND_NONE, DEPTH_NONE, MOVE_NONE, eval);
     }
 
+    // Use static evaluation difference to improve quiet move ordering (~9 Elo)
+    if ((is_ok((ss-1)->currentMove) && !(ss-1)->inCheck && !priorCapture)
+    {
+        int bonus = std::clamp(-13 * int((ss-1)->staticEval + ss->staticEval), -1578, 1291);
+        bonus = bonus > 0 ? 2 * bonus : bonus / 2;
+        thisThread->mainHistory[~us][((ss-1)->currentMove).from_to()] << bonus;
+        if (type_of(pos.piece_on(prevSq)) != PAWN && ((ss-1)->currentMove).type_of() != PROMOTION)
+            thisThread->pawnHistory[pawn_structure_index(pos)][pos.piece_on(prevSq)][prevSq]
+              << bonus / 2;
+    }
+
     // Step 7. Razoring (~1 Elo)
     // If eval is really low check with qsearch if it can exceed alpha, if it can't,
     // return a fail low.
+    // Adjust razor margin according to cutoffCnt. (~1 Elo)
     if (   !PvNode
         &&  depth == 1
-        &&  eval <= alpha - RazorMargin)
+        &&  eval <= alpha - RazorMargin - (289 - 142 * ((ss+1)->cutoffCnt > 3)) * depth * depth)
     {
         value = qsearch<NonPV>(pos, ss, alpha - 1, alpha);
         if (value < alpha)
@@ -1195,6 +1208,10 @@ moves_loop: // When in check, search starts from here
           if ((ss-1)->moveCount > 13)
               r--;
 
+          // Increase reduction if next ply has a lot of fail high (~5 Elo)
+          if ((ss + 1)->cutoffCnt > 3)
+              r++;
+
           // Decrease reduction if ttMove has been singularly extended (~3 Elo)
           if (singularQuietLMR)
               r -= 1 + formerPv;
@@ -1340,13 +1357,20 @@ moves_loop: // When in check, search starts from here
               if (PvNode && !rootNode) // Update pv even in fail-high case
                   update_pv(ss->pv, move, (ss+1)->pv);
 
-              if (PvNode && value < beta) // Update alpha! Always alpha < beta
-                  alpha = value;
+              if (value >= beta)
+              {
+                  ss->cutoffCnt += 1 + !ttMove;
+                  assert(value >= beta);  // Fail high
+                  break;
+              }
               else
               {
-                  assert(value >= beta); // Fail high
-                  ss->statScore = 0;
-                  break;
+                  // Reduce other moves if we have found at least one score improvement (~2 Elo)
+                  if (depth > 2 && depth < 12 && beta < 14206 && value > -12077)
+                      depth -= 2;
+
+                  assert(depth > 0);
+                  alpha = value;  // Update alpha! Always alpha < beta
               }
           }
       }

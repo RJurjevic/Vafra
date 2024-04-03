@@ -1,6 +1,6 @@
 /*
   Stockfish, a UCI chess playing engine derived from Glaurung 2.1
-  Copyright (C) 2004-2023 The Stockfish developers (see AUTHORS file)
+  Copyright (C) 2004-2024 The Stockfish developers (see AUTHORS file)
 
   Stockfish is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -38,11 +38,17 @@ namespace PSQT {
     - Quiet moves sort scoring updated as in Stockfish 16 by adding bonuses for checks and escaping from capture and malus for putting piece en prise.
     - In search Step 7 Razoring razoring implemented similarly as in Stockfish 16.
     - In search Step 11 Internal iterative deepening internal iterative deepening implemented similarly as in Stockfish 9 instead of if the position is not in TT decreasing the depth by 2.
-    - In Step 16 Reduced depth search removed decreasing reduction if the ttHit running average is large.
+    - In search Step 16 Reduced depth removed decreasing reduction if the ttHit running average is large.
 
   V 14.12.1
     - Used nn-622d6e793eaf.nnue NNUE aka nn-v0f000010909.nnue.
     - In search Step 16 Reduced depth search removed ttHit running average from do LMR criteria.
+
+  V 14.12.2
+    - Used static evaluation difference to improve quiet move ordering as in Stockfish 16.1.
+    - In search Step 7 Razoring implemented adjusting razor margin according to cutoffCnt as in Stockfish 16.1.
+    - In search Step 16 Reduced depth search increased reduction if next ply has a lot of fail high as in Stockfish 16.1.
+    - In search Step 19 Check for a new best move reduced other moves if we have found at least one score improvement as in Stockfish 16.1.
 */
 
 int main(int argc, char* argv[]) {
