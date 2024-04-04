@@ -591,7 +591,7 @@ namespace {
     TTEntry* tte;
     Key posKey;
     Move ttMove, move, excludedMove, bestMove;
-    Depth extension, newDepth;
+    Depth extension, newDepth, reducedDepth;
     Value bestValue, value, ttValue, eval, maxValue, probCutBeta;
     bool ttHit, formerPv, givesCheck, improving, didLMR, priorCapture;
     bool captureOrPromotion, doFullDepthSearch, moveCountPruning,
@@ -1163,8 +1163,11 @@ moves_loop: // When in check, search starts from here
       // Step 15. Make the move
       pos.do_move(move, st, givesCheck);
 
-      // Step 16. Reduced depth search (LMR, ~200 Elo). If the move fails high it will be
-      // re-searched at full depth.
+      // Set reduced depth
+      reducedDepth = newDepth;
+
+      // Step 16. Reduced depth search (LMR, ~200 Elo).
+      // If the move fails high it will be re-searched at full depth.
       if (    depth >= 3
           &&  moveCount > 1 + 2 * rootNode + 2 * (PvNode && abs(bestValue) < 2)
           && (  !captureOrPromotion
@@ -1249,17 +1252,19 @@ moves_loop: // When in check, search starts from here
                 r++;
           }
 
-          Depth d = std::clamp(newDepth - r, 1, newDepth);
+          Depth d = reducedDepth = std::clamp(newDepth - r, 1, newDepth);
 
           value = -search<NonPV>(pos, ss+1, -(alpha+1), -alpha, d, true); // at this point likely all-node
 
-          doFullDepthSearch = value > alpha && d != newDepth;
+          // Do a full-depth search when reduced LMR search fails high
+          doFullDepthSearch = value > alpha && d < newDepth;
 
           didLMR = true;
       }
       else
       {
-          doFullDepthSearch = !PvNode || moveCount > 1;
+		  // Do a full-depth search when LMR is skipped
+          doFullDepthSearch = true;
 
           didLMR = false;
       }
@@ -1275,10 +1280,15 @@ moves_loop: // When in check, search starts from here
                 const bool doShallowerSearch = value < bestValue + newDepth;             // (~2 Elo)
 
                 newDepth += doDeeperSearch - doShallowerSearch;
+
+                if (newDepth > reducedDepth)
+                    value = -search<NonPV>(pos, ss+1, -(alpha+1), -alpha, newDepth, !cutNode);
           }
 
-		  if (newDepth > d)
-              value = -search<NonPV>(pos, ss+1, -(alpha+1), -alpha, newDepth, !cutNode);
+          else
+          {
+                value = -search<NonPV>(pos, ss+1, -(alpha+1), -alpha, newDepth, !cutNode);
+          }
 
           if (didLMR && !captureOrPromotion)
           {
