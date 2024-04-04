@@ -60,7 +60,7 @@ namespace {
   enum NodeType { NonPV, PV };
 
   // Razor and futility margins
-  constexpr int RazorMargin = 488;
+  constexpr int RazorMargin = 510;
   Value futility_margin(Depth d, bool improving) {
     return Value(223 * (d - improving));
   }
@@ -799,10 +799,9 @@ namespace {
     // Step 7. Razoring (~1 Elo)
     // If eval is really low check with qsearch if it can exceed alpha, if it can't,
     // return a fail low.
-    // Adjust razor margin according to cutoffCnt. (~1 Elo)
     if (   !PvNode
         &&  depth == 1
-        &&  eval <= alpha - RazorMargin - (289 - 142 * ((ss+1)->cutoffCnt > 3)) * depth * depth)
+        &&  eval <= alpha - RazorMargin)
     {
         value = qsearch<NonPV>(pos, ss, alpha - 1, alpha);
         if (value < alpha)
@@ -1197,8 +1196,8 @@ moves_loop: // When in check, search starts from here
           if ((ss-1)->moveCount > 13)
               r--;
 
-          // Increase reduction if next ply has a lot of fail high (~5 Elo)
-          if ((ss + 1)->cutoffCnt > 3)
+          // Increase reduction if next ply has a lot of fail highs (~5 Elo)
+          if ((ss+1)->cutoffCnt > 3)
               r++;
 
           // Decrease reduction if ttMove has been singularly extended (~3 Elo)
@@ -1268,7 +1267,18 @@ moves_loop: // When in check, search starts from here
       // Step 17. Full depth search when LMR is skipped or fails high
       if (doFullDepthSearch)
       {
-          value = -search<NonPV>(pos, ss+1, -(alpha+1), -alpha, newDepth, !cutNode);
+          if (didLMR)
+          {
+                // Adjust full-depth search based on LMR results - if the result
+                // was good enough search deeper, if it was bad enough search shallower.
+                const bool doDeeperSearch    = value > (bestValue + 47 + 2 * newDepth);  // (~1 Elo)
+                const bool doShallowerSearch = value < bestValue + newDepth;             // (~2 Elo)
+
+                newDepth += doDeeperSearch - doShallowerSearch;
+          }
+
+		  if (newDepth > d)
+              value = -search<NonPV>(pos, ss+1, -(alpha+1), -alpha, newDepth, !cutNode);
 
           if (didLMR && !captureOrPromotion)
           {
@@ -1346,20 +1356,14 @@ moves_loop: // When in check, search starts from here
               if (PvNode && !rootNode) // Update pv even in fail-high case
                   update_pv(ss->pv, move, (ss+1)->pv);
 
-              if (value >= beta)
-              {
-                  ss->cutoffCnt += 1 + !ttMove;
-                  assert(value >= beta);  // Fail high
-                  break;
-              }
+              if (PvNode && value < beta) // Update alpha! Always alpha < beta
+                  alpha = value;
               else
               {
-                  // Reduce other moves if we have found at least one score improvement (~2 Elo)
-                  if (depth > 2 && depth < 12 && beta < 14206 && value > -12077)
-                      depth -= 2;
-
-                  assert(depth > 0);
-                  alpha = value;  // Update alpha! Always alpha < beta
+				  ss->cutoffCnt += 1 + !ttMove;
+                  assert(value >= beta); // Fail high
+                  ss->statScore = 0;
+                  break;
               }
           }
       }
