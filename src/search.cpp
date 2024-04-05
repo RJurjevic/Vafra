@@ -591,7 +591,7 @@ namespace {
     TTEntry* tte;
     Key posKey;
     Move ttMove, move, excludedMove, bestMove;
-    Depth extension, newDepth, reducedDepth;
+    Depth extension, newDepth;
     Value bestValue, value, ttValue, eval, maxValue, probCutBeta;
     bool ttHit, formerPv, givesCheck, improving, didLMR, priorCapture;
     bool captureOrPromotion, doFullDepthSearch, moveCountPruning,
@@ -643,7 +643,6 @@ namespace {
     (ss+1)->ttPv = false;
     (ss+1)->excludedMove = bestMove = MOVE_NONE;
     (ss+2)->killers[0] = (ss+2)->killers[1] = MOVE_NONE;
-    (ss+2)->cutoffCnt = 0;
     Square prevSq = to_sq((ss-1)->currentMove);
 
     // Initialize statScore to zero for the grandchildren of the current position.
@@ -1163,13 +1162,11 @@ moves_loop: // When in check, search starts from here
       // Step 15. Make the move
       pos.do_move(move, st, givesCheck);
 
-      // Set reduced depth
-      reducedDepth = newDepth;
-
       // Step 16. Reduced depth search (LMR, ~200 Elo).
       // If the move fails high it will be re-searched at full depth.
       if (    depth >= 3
           &&  moveCount > 1 + 2 * rootNode + 2 * (PvNode && abs(bestValue) < 2)
+          &&  extension == 0
           && (  !captureOrPromotion
               || moveCountPruning
               || ss->staticEval + PieceValue[EG][pos.captured_piece()] <= alpha
@@ -1198,10 +1195,6 @@ moves_loop: // When in check, search starts from here
           // Decrease reduction if opponent's move count is high (~5 Elo)
           if ((ss-1)->moveCount > 13)
               r--;
-
-          // Increase reduction if next ply has a lot of fail highs (~5 Elo)
-          if ((ss+1)->cutoffCnt > 3)
-              r++;
 
           // Decrease reduction if ttMove has been singularly extended (~3 Elo)
           if (singularQuietLMR)
@@ -1252,7 +1245,7 @@ moves_loop: // When in check, search starts from here
                 r++;
           }
 
-          Depth d = reducedDepth = std::clamp(newDepth - r, 1, newDepth);
+          Depth d = std::clamp(newDepth - r, 1, newDepth);
 
           value = -search<NonPV>(pos, ss+1, -(alpha+1), -alpha, d, true); // at this point likely all-node
 
@@ -1272,23 +1265,7 @@ moves_loop: // When in check, search starts from here
       // Step 17. Full depth search when LMR is skipped or fails high
       if (doFullDepthSearch)
       {
-          if (didLMR)
-          {
-                // Adjust full-depth search based on LMR results - if the result
-                // was good enough search deeper, if it was bad enough search shallower.
-                const bool doDeeperSearch    = value > (bestValue + 47 + 2 * newDepth);  // (~1 Elo)
-                const bool doShallowerSearch = value < bestValue + newDepth;             // (~2 Elo)
-
-                newDepth += doDeeperSearch - doShallowerSearch;
-
-                if (newDepth > reducedDepth)
-                    value = -search<NonPV>(pos, ss+1, -(alpha+1), -alpha, newDepth, !cutNode);
-          }
-
-          else
-          {
-                value = -search<NonPV>(pos, ss+1, -(alpha+1), -alpha, newDepth, !cutNode);
-          }
+          value = -search<NonPV>(pos, ss+1, -(alpha+1), -alpha, newDepth, !cutNode);
 
           if (didLMR && !captureOrPromotion)
           {
@@ -1370,7 +1347,6 @@ moves_loop: // When in check, search starts from here
                   alpha = value;
               else
               {
-				  ss->cutoffCnt += 1 + !ttMove;
                   assert(value >= beta); // Fail high
                   ss->statScore = 0;
                   break;

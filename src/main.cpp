@@ -45,8 +45,7 @@ namespace PSQT {
     - In search Step 16 Reduced depth search removed ttHit running average from do LMR criteria.
 
   V 14.12.2
-    - In search Step 16 Reduced depth search increased reduction if next ply has a lot of fail highs as in Stockfish 16.1.
-    - In search Step 17 Full depth search when LMR is skipped or fails high adjusted full-depth search based on LMR results as in Stockfish 16.1.
+    - In search Step 16 Reduced depth search LMR not done if the move is extended.
 */
 
 int main(int argc, char* argv[]) {
