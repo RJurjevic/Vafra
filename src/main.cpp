@@ -46,7 +46,6 @@ namespace PSQT {
 
   V 14.12.2
     - In search Step 16 Reduced depth search LMR not done if the move is extended.
-    - When using NNUE use pure NNUE evaluation.
 */
 
 int main(int argc, char* argv[]) {
