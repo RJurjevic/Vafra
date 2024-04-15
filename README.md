@@ -18,7 +18,7 @@ CPU architectures, while the NNUE evaluation benefits from the vector
 intrinsics available on most CPUs (sse2, avx2, neon, or similar).
 
 This repository is committed to Vafra Stockfish, an NNUE (Neural Network Easy Update) 
-iteration of Stockfish derived from Stockfish 12. While subsequent versions of Stockfish 
+version of Stockfish derived from Stockfish 12. While subsequent versions of Stockfish 
 integrate an advanced NNUE architecture with enhanced training capabilities, Vafra 
 Stockfish distinguishes itself by maintaining a simplified NNUE architecture and 
 exclusively utilizing zero-knowledge Leela data for training. Guided by Robert Jurjevic's 
