@@ -17,15 +17,14 @@ updateable neural networks. The classical evaluation runs efficiently on almost 
 CPU architectures, while the NNUE evaluation benefits from the vector
 intrinsics available on most CPUs (sse2, avx2, neon, or similar).
 
-This repository hosts Vafra Stockfish, a specialized variant of Stockfish featuring 
-NNUE (Neural Network Easy Update) technology. While the current iteration of Stockfish 
-boasts a more sophisticated NNUE architecture with superior training, Vafra Stockfish 
-stands out for its unique training approach, utilizing exclusively Leela data. 
-Spearheaded by Robert Jurjevic, an experienced developer renowned for his adept 
-maintenance of chess engine clones, this project continues the legacy of Stockfish 
-while incorporating innovative approaches to training and refinement. Join us in 
-exploring the unique capabilities and potential of Vafra Stockfish in the realm of
-computer chess.
+This repository is committed to Vafra Stockfish, an NNUE (Neural Network Easy Update) 
+iteration of Stockfish derived from Stockfish 12. While subsequent versions of Stockfish 
+integrate an advanced NNUE architecture with enhanced training capabilities, Vafra 
+Stockfish distinguishes itself by maintaining a simplified NNUE architecture and 
+exclusively utilizing zero-knowledge Leela data for training. Guided by Robert Jurjevic's 
+leadership, this project carries forward the legacy of Stockfish developers by exploring 
+alternative approaches to advancing the Stockfish project. We invite you to discover the 
+capabilities of the Vafra Stockfish chess engine.
 
 
 ## Files
