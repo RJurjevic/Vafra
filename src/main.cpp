@@ -45,7 +45,7 @@ namespace PSQT {
     - In search Step 16 Reduced depth search removed ttHit running average from do LMR criteria.
 
   V 14.12.2
-    - Used nn-5f31d021e281.nnue NNUE aka nn-v0f000010911.nnue.
+    - Used nn-d9d2b7e1212e.nnue NNUE aka nn-v0f000010911.nnue.
     - In search Step 16 Reduced depth search LMR not done if the move is extended.
 */
 
