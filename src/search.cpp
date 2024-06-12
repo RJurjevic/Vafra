@@ -953,8 +953,8 @@ namespace {
         search<PV>(pos, ss, alpha, beta, d, false);
 
         tte = TT.probe(posKey, ttHit);
-        ttMove = // rootNode ? thisThread->rootMoves[thisThread->pvIdx].pv[0] : implicit as we have ttMove for rootNode
-                 ttHit ? tte->move() : MOVE_NONE;
+        ttValue = ttHit ? value_from_tt(tte->value(), ss->ply, pos.rule50_count()) : ttValue;
+        ttMove = ttHit ? tte->move() : MOVE_NONE;
     }
 
 moves_loop: // When in check, search starts from here
@@ -1087,7 +1087,7 @@ moves_loop: // When in check, search starts from here
           &&  move == ttMove
           && !rootNode
           && !excludedMove // Avoid recursive singular search
-       /* &&  ttValue != VALUE_NONE Already implicit in the next condition */
+          &&  ttValue != VALUE_NONE
           &&  abs(ttValue) < VALUE_KNOWN_WIN
           && (tte->bound() & BOUND_LOWER)
           &&  tte->depth() >= depth - 3)
