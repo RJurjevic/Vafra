@@ -48,7 +48,7 @@ namespace PSQT {
     - Used nn-d9d2b7e1212e.nnue NNUE aka nn-v0f000010909.nnue.
     - In search Step 16 Reduced depth search LMR is not applied if the move is extended.
     - In search Step 11 Internal iterative deepening now calculates ttValue.
-    - In Eval::evaluate updated the hybrid evaluation.
+    - In Eval::evaluate updated hybrid evaluation similarly as in Stockfish 16.
 */
 
 int main(int argc, char* argv[]) {
