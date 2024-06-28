@@ -190,7 +190,6 @@ namespace {
   constexpr Value LazyThreshold1 =  Value(1400);
   constexpr Value LazyThreshold2 =  Value(1300);
   constexpr Value SpaceThreshold = Value(12222);
-  constexpr Value NNUEThreshold =   Value(2048);
 
   // KingAttackWeights[PieceType] contains king attack weights by piece type
   constexpr int KingAttackWeights[PIECE_TYPE_NB] = { 0, 0, 81, 52, 44, 10 };
@@ -1014,13 +1013,8 @@ make_v:
 
 Value Eval::evaluate(const Position& pos) {
 
-  // We use the much less accurate but faster Classical eval when the NNUE
-  // option is set to false. Otherwise we use the NNUE eval unless the
-  // PSQ advantage is decisive. (~4 Elo at STC, 1 Elo at LTC)
-  bool classical = !Eval::useNNUE || abs(eg_value(pos.psq_score())) > NNUEThreshold;
-
   // Evaluate
-  Value v = classical ? Evaluation<NO_TRACE>(pos).value() : NNUE::evaluate(pos);
+  Value v = NNUE::evaluate(pos);
 
   // Damp down the evaluation linearly when shuffling
   v = v * (100 - pos.rule50_count()) / 100;
