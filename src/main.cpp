@@ -48,7 +48,6 @@ namespace PSQT {
     - Used nn-0c7dc1c21ef3.nnue NNUE aka nn-v0f000011206.nnue.
     - In search Step 16 Reduced depth search LMR is not applied if the move is extended.
     - In search Step 11 Internal iterative deepening now calculates ttValue.
-    - In Eval::evaluate switched to pure NNUE evaluation, moving away from the hybrid approach.
 */
 
 int main(int argc, char* argv[]) {
